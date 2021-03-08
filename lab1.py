@@ -4,7 +4,7 @@ import py7zr
 import os
 from table import cteate_table, insert_string, ball_list
 
-"""
+
 conn = psycopg2.connect(
     host='localhost',
     port=5432,
@@ -13,10 +13,10 @@ conn = psycopg2.connect(
     password='postgres'
 )
 cur = conn.cursor()
-cur.execute(cteate_table)
+#cur.execute(cteate_table)
 cur.close()
 conn.commit()
-conn.close()"""
+conn.close()
 #way1 = 'https://zno.testportal.com.ua/yearstat/uploads/OpenDataZNO2019.7z'
 #way2 = 'https://zno.testportal.com.ua/yearstat/uploads/OpenDataZNO2020.7z'
 #urllib.request.urlretrieve(way1, '2019.7z')
@@ -35,9 +35,10 @@ if not os.listdir(path="dir"):
         i = 0
         k = 0
         f = open('dir/partfile1_'+str(k)+'.csv', 'w')
-        while a:
+        while len(a) > 50:
             if i < 5000:
                 a = file.readline()
+                a = a[0:-1] + ";2019\n"
                 f.write(a)
                 i = i + 1
             else:
@@ -46,15 +47,17 @@ if not os.listdir(path="dir"):
                 k = k + 1
                 f = open('dir/partfile1_' + str(k) + '.csv', 'w')
         f.close()
+
     with open('Odata2020File.csv', encoding='cp1251') as file:
         a = file.readline()
         print(a)
         i = 0
         k = 0
         f = open('dir/partfile2_'+str(k)+'.csv', 'w')
-        while a:
+        while len(a) > 50:
             if i < 5000:
                 a = file.readline()
+                a = a[0:-2] + ";2020\n"
                 f.write(a)
                 i = i + 1
             else:
@@ -94,6 +97,8 @@ conn = psycopg2.connect(
 counter1 = 0
 
 for el in os.listdir(path="dir"):
+    print("Uploading:", el)
+
     with open("dir/" + el, encoding="cp1251") as file:
         a = True
         while a and a != '':
@@ -102,10 +107,8 @@ for el in os.listdir(path="dir"):
             a_list = a.split(';')
             if a_list != ['']:
                 a_list = func1(a_list)
-            for el in a_list:
-                if len(el) > 250:
-                    print(len(el))
             i = 0
+
             while i < len(a_list):
                 if a_list[i] == "null":
                     a_list[i] = None
@@ -113,12 +116,14 @@ for el in os.listdir(path="dir"):
                     a_list[i] = float(a_list[i].replace(',', '.'))
                 i = i + 1
 
-            if a_list != ['']:
+            if len(a_list) > 20:
                 cur = conn.cursor()
                 cur.execute(insert_string, a_list)
                 cur.close()
+
     conn.commit()
-    #os.remove("dir/" + el)
+    print("Done:", el)
+    os.remove("dir/" + el)
 conn.close()
 
 """

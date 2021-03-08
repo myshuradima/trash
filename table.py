@@ -124,7 +124,8 @@ spaBall INTEGER,
 spaPTName VARCHAR(255),
 spaPTRegName VARCHAR(255),
 spaPTAreaName VARCHAR(255),
-spaPTTerName VARCHAR(255));"""
+spaPTTerName VARCHAR(255),
+examdate VARCHAR(255));"""
 
 ball_list = [18, 19, 20, 29, 30, 31, 39, 40, 41, 49, 50, 51, 59, 60, 61, 69, 70, 71, 79, 80, 81, 88, 89, 91, 98, 99, 101, 108, 109, 111, 118, 119, 121]
 
@@ -255,7 +256,9 @@ OUTID
 ,spaPTRegName
 ,spaPTAreaName
 ,spaPTTerName
+,examdate
 ) VALUES(
+%s,
 %s,
 %s,
 %s,
@@ -383,3 +386,10 @@ OUTID
 %s,
 %s);
 """
+select_query = """SELECT regname,
+	avg(physball100),
+	avg(physball12),
+	examdate
+FROM public.odata
+WHERE odata.physteststatus = 'Зараховано'
+GROUP BY regname, examdate;"""
